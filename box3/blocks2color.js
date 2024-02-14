@@ -1,0 +1,46 @@
+var BLOCKS=Object.assign({},require("./box3colorblocks").BLOCKS);
+const {rgb,box3}=require("./box3colorblocks");
+BLOCKS={
+    cadet_blue: { r: 55, g: 98, b: 156 },
+    sky_blue: { r: 88, g: 170, b: 231 },
+    powder_blue: { r: 193, g: 236, b: 248 },
+    dark_gray: { r: 66, g: 66, b: 66 },
+    light_gray: { r: 174, g: 174, b: 174 },
+    olive_green: { r: 117, g: 143, b: 56 },
+    yellow_green: { r: 176, g: 204, b: 76 },
+    pale_green: { r: 210, g: 224, b: 137 },
+    red: { r: 245, g: 14, b: 14 },
+    dark_red: { r: 158, g: 25, b: 6 },
+    brick_red: { r: 222, g: 74, b: 74 },
+    medium_gray: { r: 113, g: 113, b: 113 },
+    dark_slate_blue: { r: 40, g: 53, b: 115 },
+    pink: { r: 255, g: 125, b: 156 },
+    sakura_pink: { r: 255, g: 191, b: 226 },
+    orange: { r: 255, g: 148, b: 14 },
+    lemon: { r: 255, g: 247, b: 76 },
+    black: { r: 0, g: 0, b: 0 },
+    white: { r: 255, g: 255, b: 255 },
+    blue: { r: 0, g: 0, b: 255 },
+    turquoise: { r: 77, g: 208, b: 225 },
+    dark_orchid: { r: 123, g: 31, b: 162 },
+    medium_orchid: { r: 186, g: 104, b: 200 },
+    medium_purple: { r: 139, g: 140, b: 222 },
+    medium_violet: { r: 221, g: 52, b: 141 },
+    maroon: { r: 221, g: 52, b: 141 },
+    coffee_gray: { r: 121, g: 85, b: 72 },
+    peru: { r: 187, g: 117, b: 71 },
+    dark_salmin: { r: 219, g: 164, b: 99 },
+    navajo_white: { r: 251, g: 223, b: 155 },
+    orange_red: { r: 230, g: 81, b: 0 },
+    medium_yellow: { r: 255, g: 213, b: 65 },
+    medium_green: { r: 10, g: 126, b: 7 },
+    sienna: { r: 132, g: 107, b: 41 },
+    mint_green: { r: 183, g: 255, b: 164 },
+    medium_spring_green: { r: 55, g: 255, b: 193 },
+    // grass: { r: 123, g: 188, b: 68 },
+    // green_leaf: { r: 57, g: 148, b: 58 },
+    // acacia: { r: 95, g: 79, b: 50 }
+  }
+module.exports={
+    BLOCKS,box3
+};

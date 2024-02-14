@@ -1,0 +1,20 @@
+<mdui-layout>
+<mdui-top-app-bar>
+    <mdui-button-icon icon="menu" id="drawer-open"></mdui-button-icon>
+    <mdui-top-app-bar-title>Box3Convert</mdui-top-app-bar-title>
+    <div style="flex-grow: 1"></div>
+  </mdui-top-app-bar>
+  <mdui-navigation-drawer close-on-overlay-click id="drawer">
+    <mdui-list>
+      <%drawer.forEach((d)=>{%>
+        <mdui-list-item rounded href="<%=d.path%>" <%if(path==d.path){%>active<%}%>><%=d.name%></mdui-list-item>
+      <%});%>
+    </mdui-list>
+  </mdui-navigation-drawer>
+<script>
+  window.$=mdui.$||{};
+  $("#drawer-open").on("click",()=>{
+    $("#drawer").get(0).open=!$("#drawer").get(0).open;
+  })
+</script>
+<mdui-layout-main style="min-height: 600px;">

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html class="mdui-theme-dark" lang="zh-CN">
+<%-include("_head",{title})%>
+
+  <body>
+    <%include _topbar%>
+      <div style="padding: 16px;">
+        <div class="mdui-prose">
+          <h1>岛三vox模型转方块建筑工具</h1>
+          <h3>上传 Vox</h3>
+          <input id="uploadFile" type="file" accept=".vox"><br>
+          <h3>缩放</h3>
+          <mdui-slider id="scaler" tickmarks step="0.05" min="0" max="1" value="0.25"></mdui-slider>
+          <h2>高级设置</h2><mdui-switch id="switch-advanced"></mdui-switch>
+          <div id="advanced">
+            <h3><b>[高级]</b>旋转（轴排列）</h3>
+            <p>轴排列，axis permutation，只能输入xyz排列，大写即翻转轴<br>如果你不了解这是什么，请保持xzy</p>
+            <mdui-text-field label="旋转(默认xzy)" value="xzy" id="axis" maxlength="3"></mdui-text-field>
+          </div>
+        </div>
+        <br>
+        <mdui-button id="submit">转换</mdui-button>
+        <br>
+        <div class="mdui-prose">
+          <h3>转换结果（JavaScript）</h3>
+          <span>请修改下面的startPos为起始坐标</span>
+          <br>
+          <mdui-button icon="content_copy" id="result-copy">点此复制</mdui-button>
+          <mdui-text-field id="result-text" autosize placeholder="请先转换文件"></mdui-text-field>
+      </div>
+      </div>
+      <script>
+        function res2js(res){
+          return `let startPos=new GameVector3();
+let data=${JSON.stringify(res)};
+(async function(){Object.keys(data).forEach(async key=>{
+    let [x,y,z]=key.split(',').map(Number);
+    let value=data[key];
+    voxels.setVoxel(startPos.x+x,startPos.y+y,startPos.z+z,value);
+    await sleep(1)
+})})();`
+        }
+        $("#advanced").hide();
+        $("#switch-advanced").on("change",(e)=>{
+          if($("#switch-advanced").get(0).checked){
+            $("#advanced").show();
+          }else{
+            $("#advanced").hide();
+          }
+        })
+        $('#submit').on('click', function () {
+          var scale = $("#scaler").val();
+          if (scale == 0) {
+            mdui.alert({ description: "缩放不能为0" });
+            return;
+          }
+          var file = $("#uploadFile").get(0).files[0];
+          if (!file || file.name.split(".").pop() != "vox") {
+            mdui.alert({ description: "请选择vox文件" });
+            return;
+          }
+          var axis = $("#axis").val() || "xzy";
+          let flag=(axis.length == 3);
+          if(flag){
+            for(var i=0;i<axis.length;i++){
+              if(axis[i].toLowerCase()!="x"&&axis[i].toLowerCase()!="y"&&axis[i].toLowerCase()!="z"){
+                flag=false;
+                break;
+              }
+            }
+          }
+          if(!flag){
+            mdui.alert({ description: "轴排列无效" });
+            return;
+          }
+          var formData = new FormData();
+          formData.append("file", file);
+          formData.append("scale", scale);
+          formData.append("axis", axis);
+          $.ajax({
+            method: 'POST',
+            url: '/api/vox2blocks',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType:"json",
+            success: function (response) {
+              if(response.result.res){
+                $("#result-text").val(res2js(response.result.res));
+                mdui.alert({ description: "转换成功" });
+              }else{
+                mdui.alert({ description: `错误：${response.error}` });
+              }
+            },error: function (xhr, textStatus) {
+              mdui.alert({ description: `错误：${textStatus}` });
+            }
+          });
+        });
+        $("#result-copy").on("click",()=>{
+          $("#result-text").get(0).select();
+          document.execCommand("copy");
+          mdui.snackbar({ message: "已复制到剪贴板" });
+        })
+      </script>
+      <%include _footer%>
+  </body>
+
+</html>
