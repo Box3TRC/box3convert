@@ -1,5 +1,5 @@
 {
-  "name": "online-box3-vox2blocks-importer",
+  "name": "box3convert",
   "version": "0.0.0",
   "private": true,
   "scripts": {
