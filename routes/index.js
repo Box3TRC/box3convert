@@ -16,7 +16,8 @@ function renderArgs(opt,req,res){
     drawer:[
       {name:"首页",path:"/"},
       {name:"vox模型转建筑",path:"/vox2blocks"},
-      {name:"建筑转vox模型",path:"/blocks2vox"}
+      {name:"建筑转vox模型",path:"/blocks2vox"},
+      {name:'岛三俯视图转换工具',path:"/map2pic"}
     ],
     path: req.path
   },opt);
@@ -31,6 +32,10 @@ router.get('/vox2blocks', function (req, res, next) {
 });
 router.get('/blocks2vox', function (req, res, next) {
   res.render('blocks2vox', renderArgs({ title: "岛三建筑转vox模型工具" },req,res));
+});
+
+router.get('/map2pic', function (req, res, next) {
+  res.render('map2pic', renderArgs({ title: "岛三俯视图转换工具" },req,res));
 });
 
 router.post("/api/vox2blocks", upload.single("file"), function (req, res, next) {
@@ -89,5 +94,17 @@ router.post("/api/blocks2vox",  function (req, res, next) {
     res.send({ "result": {}, "error": `internal error ${e.message}` })
   }
 })
+
+/*router.post("/api/map2pic",  async function (req, res, next) {
+  try {
+    var blockDat=JSON.parse(req.body.blockDat);
+    var blockColor=req.body.blockColor || "{}";
+    blockColor=JSON.parse(blockColor);
+    var buf=await box3tools.map2pic(blockDat,255,"black",blockColor);
+    res.send({ "result": utility.base64encode(buf)})
+  } catch (e) {
+    res.send({ "result": {}, "error": `internal error ${e.message}` })
+  }
+})*/
 
 module.exports = router;

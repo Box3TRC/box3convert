@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html class="mdui-theme-dark" lang="zh-CN">
-    <%-include("_head",{title})%>
+<%-include("_head",{title})%>
 
     <body class="line-numbers">
         <%include _topbar%>
             <div style="padding: 16px;">
                 <div class="mdui-prose">
-                    <h1>岛三方块建筑转vox模型工具</h1>
-                    <h3>如何获取建筑数据？</h3>
-                    <p>将以下代码粘贴到box3的控制台后修改start和end为建筑的两个对角点坐标，按下回车。使用f12并点击左上角选取选中控制台的输出并复制。</p>
-                    <pre><code class="language-js">let start=new GameVector3(),end=new GameVector3();
-let startPos=new GameVector3(Math.min(start.x,end.x),Math.min(start.y,end.y),Math.min(start.z,end.z));
-let endPos=new GameVector3(Math.max(start.x,end.x),Math.max(start.y,end.y),Math.max(start.z,end.z));
-let _dat={};
-for(let x=startPos.x;x<=endPos.x;x++){
-    for(y=startPos.y;y<=endPos.y;y++){
-        for(z=startPos.z;z<=endPos.z;z++){
-            if(voxels.getVoxel(x,y,z)==0||voxels.getVoxel(x,y,z)==voxels.id("barrier"))continue;
-            _dat[`${x-startPos.x},${y-startPos.y},${z-startPos.z}`]=voxels.getVoxel(x,y,z);
-        }
-    }
-}
-console.log(JSON.stringify(_dat));</code></pre>
-                    <h3>建筑数据</h3>
-                    <mdui-text-field id="blockDat" rows="5" placeholder="请粘贴[json格式]"></mdui-text-field>
+                    <h1>岛三俯视图转换工具</h1>
+                    <h3>如何获取俯视数据？</h3>
+                    <p>请选择地图大小</p>
+                    <mdui-select value="256" id="select-mapsize">
+                        <mdui-menu-item value="16">16x16</mdui-menu-item>
+                        <mdui-menu-item value="32">32x32</mdui-menu-item>
+                        <mdui-menu-item value="64">64x64</mdui-menu-item>
+                        <mdui-menu-item value="128">128x128</mdui-menu-item>
+                        <mdui-menu-item value="256">256x256</mdui-menu-item>
+                        <mdui-menu-item value="512">512x512</mdui-menu-item>
+                        <mdui-menu-item value="1024">1024x1024</mdui-menu-item>
+                    </mdui-select>
+                    <p>将以下代码粘贴到box3的控制台，按下回车。使用f12并点击左上角选取选中控制台的输出并复制。</p>
+                    <pre><code class="language-js" id="jscode"></code></pre>
+                    <h3>俯视数据</h3>
+                    <mdui-text-field id="blockDat" rows="5" placeholder="请粘贴[数组格式]"></mdui-text-field>
                     <mdui-button variant="text" id="example-data" icon="question_mark">查看范例</mdui-button>
                     <h3>自定义方块对应颜色值</h3>
                     <mdui-list id="list-blockColor" style="max-height: 200px;overflow-y:auto;"></mdui-list>
@@ -36,15 +34,16 @@ console.log(JSON.stringify(_dat));</code></pre>
                     <span>如果不指定方块的颜色值，转换后有的方块可能会变成错误的颜色</span><br>
                     <span>岛三中的纯色方块（非光源）会被默认指定颜色，在此也可重新指定</span><br>
                     <span>自动扫描功能的颜色值在没有默认值时是随机的，点击修改颜色。</span>
-                    <h2>高级设置</h2><mdui-switch id="switch-advanced"></mdui-switch>
+                    <!-- <h2>高级设置</h2><mdui-switch id="switch-advanced"></mdui-switch>
                     <div id="advanced">
                         <h3><b>[高级]</b>旋转（轴排列）</h3>
                         <p>轴排列，axis permutation，只能输入xyz排列，大写即翻转轴<br>如果你不了解这是什么，请保持xzy</p>
                         <mdui-text-field label="旋转(默认xzy)" value="xzy" id="axis" maxlength="3"></mdui-text-field>
-                    </div>
+                    </div> -->
                 </div>
                 <br>
                 <mdui-button id="submit">转换</mdui-button>
+                <mdui-button id="savecanvas" variant="tonal">下载为png</mdui-button>
             </div>
             <mdui-dialog class="blockColorDialog" headline="添加自定义方块颜色" description="方块转换后会被设置为此颜色">
                 <mdui-text-field label="方块的name" id="dlg_blockname"></mdui-text-field>
@@ -57,16 +56,28 @@ console.log(JSON.stringify(_dat));</code></pre>
                 <mdui-button slot="action" variant="text" id="dlg_cancel">取消</mdui-button>
                 <mdui-button slot="action" variant="tonal" id="dlg_add">添加</mdui-button>
             </mdui-dialog>
+            <canvas id="canvasimg" width="255" height="255"> 你的浏览器不支持 canvas，请升级你的浏览器。 </canvas>
             <script src="/javascripts/jscolor.js"></script>
             <script src="/javascripts/voxels.box3.js"></script>
             <script>
                 var blockColors = {};
                 jscolor.install();
+                function generateJSCode(mapsize){
+                    return `let arr=[];
+for(x=0;x<${mapsize-1};x++){for(z=0;z<${mapsize-1};z++){flag=false;for(y=128;y>=0;y--){if(voxels.getVoxel(x,y,z)!=0&&voxels.getVoxel(x,y,z)!=650){arr.push(voxels.getVoxel(x,y,z));flag=true;break;}}if(!flag)arr.push(0);}};
+console.log(arr);`
+                }
+                $("#select-mapsize").on("change",()=>{
+                    let code=generateJSCode(parseInt($("#select-mapsize").val()));
+                    $("#jscode").html(code);
+                    Prism.highlightAll() 
+                })
+                $("#select-mapsize").trigger("change");
                 $("#example-data").on("click", () => {
                     setTimeout(() => { Prism.highlightAll() }, 10)
                     mdui.dialog({
-                        headline: "建筑数据示范",
-                        body: `<pre><code class="language-json">{"0,3,0":131,"0,3,1":131,"0,3,2":131,"0,3,3":131,"0,3,4":131,"0,4,0":131,"0,4,1":131,"0,4,2":131,"0,4,3":131,"0,4,4":131,"1,3,0":131,"1,3,1":131,"1,3,2":131,"1,3,3":131,"1,3,4":131,"1,4,0":131,"1,4,1":131,"1,4,2":131,"1,4,3":131,"1,4,4":131,"1,5,1":131,"1,5,2":131,"1,5,3":131,"1,6,2":131,"2,0,2":133,"2,1,2":133,"2,2,2":133,"2,3,0":131,"2,3,1":131,"2,3,2":131,"2,3,3":131,"2,3,4":131,"2,4,0":131,"2,4,1":131,"2,4,2":131,"2,4,3":131,"2,4,4":131,"2,5,1":131,"2,5,2":131,"2,5,3":131,"2,6,1":131,"2,6,2":131,"2,6,3":131,"3,3,0":131,"3,3,1":131,"3,3,2":131,"3,3,3":131,"3,3,4":131,"3,4,0":131,"3,4,1":131,"3,4,2":131,"3,4,3":131,"3,4,4":131,"3,5,1":131,"3,5,2":131,"3,5,3":131,"3,6,2":131,"4,3,0":131,"4,3,1":131,"4,3,2":131,"4,3,3":131,"4,3,4":131,"4,4,0":131,"4,4,1":131,"4,4,2":131,"4,4,3":131,"4,4,4":131}</code></pre>`,
+                        headline: "数据示范",
+                        body: `暂无`,
                         actions: [
                             {
                                 text: "关闭",
@@ -133,14 +144,12 @@ console.log(JSON.stringify(_dat));</code></pre>
                         return;
                     };
                     let data = JSON.parse($("#blockDat").val());
-                    for (let pos in data) {
-                        let block = box3voxels.name(data[pos]);
-                        if (!blockColors[block]) {
-                            let color = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
-                            blockColors[block] = color;
-                            if (BLOCKS[block]) blockColors[block] = BLOCKS[block];
-                        }
-                    };
+                    for (let id of data) {
+                        let block = box3voxels.name(id);
+                        let color = { r: Math.floor(Math.random() * 256), g: Math.floor(Math.random() * 256), b: Math.floor(Math.random() * 256) };
+                        blockColors[block] = color;
+                        if (BLOCKS[block]) blockColors[block] = BLOCKS[block];
+                    }
                     mdui.snackbar({
                         message: "自动扫描完成，请手动调整颜色值。"
                     })
@@ -182,7 +191,7 @@ console.log(JSON.stringify(_dat));</code></pre>
                     } catch (e) {
                         mdui.snackbar({ message: `读取错误：${e}` })
                     }
-                    $("#uploadColorLoader").get(0).value='';
+                    $("#uploadColorLoader").get(0).value = '';
                 });
                 $("#downloadColor").on("click", () => {
                     if (Object.keys(blockColors).length == 0) {
@@ -196,6 +205,55 @@ console.log(JSON.stringify(_dat));</code></pre>
                     a.download = `预设-${Date.now()}.json`;
                     a.click();
                     URL.revokeObjectURL(url);
+                });
+                var canvas = document.getElementById('canvasimg');
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = "white"
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                var DEFAULT_COLOR="white";
+                function setPixel(x, y, c) {
+                    ctx.fillStyle = c;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+                async function drawOnCanvas() {
+                    let surfacedata=JSON.parse($("#blockDat").val());
+                    let mapsize=parseInt($("#select-mapsize").val())-1;
+                    let surfacedata_2_vec = {}
+                    let vec_2_surfacedata = {}
+                    cnt = 0
+                    for (let x = 0; x < mapsize; x++) {
+                        for (let z = 0; z < mapsize; z++) {
+                            surfacedata_2_vec[cnt] = [x, z];
+                            vec_2_surfacedata[`${x},${z}`] = cnt;
+                            cnt++;
+                        }
+                    }
+                    console.log(surfacedata.length, mapsize, mapsize * mapsize)
+                    var BLOCKS = Object.assign(Object.assign({}, BLOCKS), blockColors);
+                    for (let x = 0; x < mapsize; x++) {
+                        for (let z = 0; z < mapsize; z++) {
+                            let block_id = surfacedata[vec_2_surfacedata[`${x},${z}`]];
+                            let block_name = box3voxels.name(block_id)
+                            let block_color = DEFAULT_COLOR;
+                            if (BLOCKS[block_name]) {
+                                let rgb=BLOCKS[block_name]
+                                block_color = `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+                            }
+                            //console.log(block_id,block_name,block_color)
+                            setPixel(x, z, block_color);
+                        }
+                    }
+                }
+                $("#savecanvas").on("click",()=>{
+                    let dataURL=canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `俯视图-${Date.now()}.png`;
+                    link.href = dataURL;
+                    link.click();
+                    link.remove();
+                    mdui.snackbar({
+                        message:"已下载，请检查下载列表"
+                    })
                 })
                 function base64toBytes(base64) {
                     var binaryString = window.atob(base64)
@@ -214,14 +272,6 @@ console.log(JSON.stringify(_dat));</code></pre>
                     link.download = name;
                     link.click();
                 }
-                $("#advanced").hide();
-                $("#switch-advanced").on("change", (e) => {
-                    if ($("#switch-advanced").get(0).checked) {
-                        $("#advanced").show();
-                    } else {
-                        $("#advanced").hide();
-                    }
-                });
 
                 $('#submit').on('click', function () {
                     try { JSON.parse($("#blockDat").val()); }
@@ -231,43 +281,11 @@ console.log(JSON.stringify(_dat));</code></pre>
                         })
                         return;
                     };
-                    var axis = $("#axis").val() || "xzy";
-                    var blockDat = JSON.stringify(JSON.parse($("#blockDat").val()));
-                    var blockColor = {};
-                    let flag = (axis.length == 3);
-                    if (flag) {
-                        for (var i = 0; i < axis.length; i++) {
-                            if (axis[i].toLowerCase() != "x" && axis[i].toLowerCase() != "y" && axis[i].toLowerCase() != "z") {
-                                flag = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (!flag) {
-                        mdui.alert({ description: "轴排列无效" });
-                        return;
-                    }
-                    $.ajax({
-                        method: 'POST',
-                        url: '/api/map2pic',
-                        data: {
-                            blockDat: blockDat,
-                            axis: axis,
-                            blockColor: JSON.stringify(blockColors)
-                        },
-                        dataType: "json",
-                        success: function (response) {
-                            if (!response.error) {
-                                download(base64toBytes(response.result), `输出vox-${Date.now()}.vox`);
-                                //download(response.result.data,`output-vox-${Date.now()}.vox`)
-                                mdui.alert({ description: "转换成功，请查看下载列表" });
-                            } else {
-                                mdui.alert({ description: `错误：${response.error}` });
-                            }
-                        }, error: function (xhr, textStatus) {
-                            mdui.alert({ description: `错误：${textStatus}` });
-                        }
-                    });
+                    drawOnCanvas().then(()=>{
+                        mdui.snackbar({
+                            message: "绘制完成"
+                        })
+                    })
                 });
             </script>
             <%include _footer%>
