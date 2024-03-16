@@ -76,7 +76,8 @@ const CONVERTORS = {
     router.post("/api/blocks2vox", function (req, res, next) {
       try {
         var axis = req.body.axis || "xzy";
-        var blockDat = JSON.parse(req.body.blockDat);
+        console.log(decodeURI(req.body.blockDat))
+        var blockDat = JSON.parse(decodeURI(req.body.blockDat));
         let flagaxis = (axis.length == 3);
         if (flagaxis) {
           for (var i = 0; i < axis.length; i++) {

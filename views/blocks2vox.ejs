@@ -250,13 +250,13 @@ console.log(JSON.stringify(_dat));</code></pre>
                     $.ajax({
                         method: 'POST',
                         url: '/api/blocks2vox',
-                        data: JSON.stringify({
-                            blockDat: blockDat,
+                        data: {
+                            blockDat: encodeURI(JSON.stringify(blockDat)),
                             axis: axis,
                             blockColor: JSON.stringify(blockColors)
-                        }),
+                        },
                         dataType: "json",
-                        processData:false,
+                        // contentType: "application/json; charset=utf-8",
                         success: function (response) {
                             if (!response.error) {
                                 download(base64toBytes(response.result), `输出vox-${Date.now()}.vox`);
