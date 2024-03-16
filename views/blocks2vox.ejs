@@ -256,6 +256,7 @@ console.log(JSON.stringify(_dat));</code></pre>
                             blockColor: JSON.stringify(blockColors)
                         },
                         dataType: "json",
+                        processData:false,
                         success: function (response) {
                             if (!response.error) {
                                 download(base64toBytes(response.result), `输出vox-${Date.now()}.vox`);
