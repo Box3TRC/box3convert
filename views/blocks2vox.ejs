@@ -250,11 +250,11 @@ console.log(JSON.stringify(_dat));</code></pre>
                     $.ajax({
                         method: 'POST',
                         url: '/api/blocks2vox',
-                        data: {
+                        data: JSON.stringify({
                             blockDat: blockDat,
                             axis: axis,
                             blockColor: JSON.stringify(blockColors)
-                        },
+                        }),
                         dataType: "json",
                         processData:false,
                         success: function (response) {
