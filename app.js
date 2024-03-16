@@ -16,8 +16,8 @@ app.use(logger('dev'));
 // app.use(bodyParser.json({limit:"2mb",parameterLimit:2048}));
 // app.use(bodyParser.raw({limit: '2mb',parameterLimit:2048}));
 // app.use(bodyParser.urlencoded({ extended: false,limit:"2mb",parameterLimit:2048 }));
-app.use(express.json({limit: '4mb'}));
-app.use(express.urlencoded({limit: '4mb'}));
+app.use(express.json({limit: '5mb'}));
+app.use(express.urlencoded({limit: '5mb'}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
