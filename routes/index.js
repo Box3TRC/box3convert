@@ -77,7 +77,8 @@ const CONVERTORS = {
       try {
         var axis = req.body.axis || "xzy";
         //console.log(decodeURI(req.body.blockDat))
-        var blockDat = JSON.parse(decodeURI(req.body.blockDat));
+        var blockDat = JSON.parse(req.body.blockDat);
+        //console.log(req.body)
         let flagaxis = (axis.length == 3);
         if (flagaxis) {
           for (var i = 0; i < axis.length; i++) {

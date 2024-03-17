@@ -251,7 +251,7 @@ console.log(JSON.stringify(_dat));</code></pre>
                         method: 'POST',
                         url: '/api/blocks2vox',
                         data: {
-                            blockDat: encodeURI(JSON.stringify(blockDat)),
+                            blockDat: blockDat,
                             axis: axis,
                             blockColor: JSON.stringify(blockColors)
                         },
